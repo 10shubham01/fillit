@@ -117,9 +117,6 @@
   .icon-btn {
     @apply grid size-[34px] cursor-pointer place-items-center rounded-lg border-0 bg-transparent text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink;
   }
-  .icon-btn svg {
-    fill: currentColor;
-  }
   .icon-btn.danger:hover {
     @apply bg-danger-tint text-danger;
   }
