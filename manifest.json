@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Fillit — Text Snippets Anywhere",
-  "version": "1.1.0",
+  "name": "slash slash — Text Snippets Anywhere",
+  "version": "1.2.0",
   "description": "Save text templates and insert them anywhere on the web by typing //. Minimal, fast, private — everything stays on your device.",
   "permissions": ["storage", "sidePanel", "clipboardRead"],
   "host_permissions": ["<all_urls>"],
@@ -9,7 +9,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Open Fillit"
+    "default_title": "Open slash slash"
   },
   "side_panel": {
     "default_path": "sidepanel.html"
@@ -20,13 +20,13 @@
         "default": "Ctrl+Shift+Y",
         "mac": "Command+Shift+Y"
       },
-      "description": "Open the Fillit sidebar"
+      "description": "Open the slash slash sidebar"
     }
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["format.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle",
       "all_frames": true

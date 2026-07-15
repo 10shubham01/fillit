@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fillit</title>
+    <title>slash slash</title>
     <link rel="stylesheet" href="sidepanel.css" />
   </head>
   <body>
@@ -11,11 +11,15 @@
     <div id="listView" class="view">
       <header class="flex items-center gap-2.5 px-4 pt-4 pb-3">
         <div class="flex flex-1 items-center gap-2.5">
-          <span class="brand-mark">/<span class="brand-mark-2">/</span></span>
-          <span class="text-[16px] font-semibold tracking-tight">Fillit</span>
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="7.5" class="ss-sq" />
+            <polygon points="7.5,23.36 11.66,23.36 18.7,8.64 14.54,8.64" class="ss-s1" />
+            <polygon points="13.26,23.36 17.42,23.36 24.46,8.64 20.3,8.64" class="ss-s2" />
+          </svg>
+          <span class="text-[16px] font-semibold tracking-tight">slash slash</span>
         </div>
         <div class="flex gap-0.5">
-          <button id="helpBtn" class="icon-btn" title="What is Fillit?" aria-label="Help">
+          <button id="helpBtn" class="icon-btn" title="What is slash slash?" aria-label="Help">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 0 1 5.4 1c0 1.9-2.6 2.3-2.6 3.9" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1" fill="currentColor" stroke="none"/></svg>
           </button>
           <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme"></button>
@@ -91,16 +95,23 @@
           <span class="text-[11px] font-bold tracking-wider text-ink-3 uppercase">Insert</span>
           <button type="button" class="var-chip" data-token="{date}">{date}</button>
           <button type="button" class="var-chip" data-token="{time}">{time}</button>
+          <button type="button" class="var-chip" data-token="{datetime}">{datetime}</button>
           <button type="button" class="var-chip" data-token="{clipboard}">{clipboard}</button>
+          <button type="button" class="var-chip" data-token="{url}">{url}</button>
+          <button type="button" class="var-chip" data-token="{title}">{title}</button>
+          <button type="button" class="var-chip" data-token="{uuid}">{uuid}</button>
           <button type="button" class="var-chip" data-token="{cursor}">{cursor}</button>
           <button type="button" class="var-chip" data-token="{}">{…}</button>
         </div>
 
         <p class="-mt-1 text-[12px] leading-relaxed text-ink-3">
           Wrap anything in <code class="tok field">{ }</code> to make it a variable.
-          <code class="tok util">{date}</code>, <code class="tok util">{time}</code>,
-          <code class="tok util">{clipboard}</code> and <code class="tok util">{cursor}</code>
-          fill automatically — everything else asks you when you insert.
+          Tokens like <code class="tok util">{date}</code>, <code class="tok util">{time}</code>,
+          <code class="tok util">{clipboard}</code>, <code class="tok util">{url}</code> and
+          <code class="tok util">{cursor}</code> fill automatically; everything else asks you
+          on insert. Add a format after a colon —
+          <code class="tok util">{date:iso}</code>, <code class="tok util">{time:24}</code>,
+          <code class="tok util">{date:DD MMM YYYY}</code>.
         </p>
       </div>
 
@@ -116,11 +127,15 @@
         <button id="helpBackBtn" class="icon-btn" title="Back" aria-label="Back">
           <svg viewBox="0 0 24 24" width="18" height="18"><polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <span class="flex-1 text-[15px] font-semibold tracking-tight">About Fillit</span>
+        <span class="flex-1 text-[15px] font-semibold tracking-tight">About slash slash</span>
       </header>
       <div class="flex-1 overflow-y-auto px-[18px] pt-2 pb-5">
         <div class="px-1.5 pt-4 pb-5 text-center">
-          <span class="brand-mark lg mx-auto mb-4">/<span class="brand-mark-2">/</span></span>
+          <svg class="brand-mark lg mx-auto mb-4" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="7.5" class="ss-sq" />
+            <polygon points="7.5,23.36 11.66,23.36 18.7,8.64 14.54,8.64" class="ss-s1" />
+            <polygon points="13.26,23.36 17.42,23.36 24.46,8.64 20.3,8.64" class="ss-s2" />
+          </svg>
           <h2 class="text-[20px] leading-tight font-bold tracking-tight">
             Text you reuse, one <em class="font-mono not-italic text-accent">//</em> away.
           </h2>
@@ -149,7 +164,7 @@
             <span class="grid size-6 shrink-0 place-items-center rounded-full bg-accent-tint font-mono text-[12px] font-bold text-accent">3</span>
             <div>
               <strong class="text-[13.5px] font-semibold">Use variables</strong>
-              <p class="mt-[3px] text-[12.5px] leading-relaxed text-ink-2">Wrap words in <span class="tok">{ }</span>. <span class="tok util">{date}</span>, <span class="tok util">{time}</span>, <span class="tok util">{clipboard}</span>, <span class="tok util">{cursor}</span> fill in for you; anything else like <span class="tok field">{name}</span> asks you on insert.</p>
+              <p class="mt-[3px] text-[12.5px] leading-relaxed text-ink-2">Wrap words in <span class="tok">{ }</span>. <span class="tok util">{date}</span>, <span class="tok util">{time}</span>, <span class="tok util">{datetime}</span>, <span class="tok util">{clipboard}</span>, <span class="tok util">{url}</span>, <span class="tok util">{title}</span>, <span class="tok util">{uuid}</span> and <span class="tok util">{cursor}</span> fill in for you — add a format like <span class="tok util">{date:iso}</span> or <span class="tok util">{time:24}</span>. Anything else like <span class="tok field">{name}</span> asks you on insert.</p>
             </div>
           </li>
         </ol>
@@ -163,7 +178,7 @@
           <div class="rounded-xl bg-surface-2 p-[13px]">
             <div class="mb-[7px] text-[16px] leading-none">⌘</div>
             <strong class="text-[12.5px] font-semibold">Shortcuts</strong>
-            <p class="mt-[3px] text-[11.5px] leading-normal text-ink-2"><kbd>Ctrl/⌘</kbd><kbd>⇧</kbd><kbd>Y</kbd> opens Fillit. See all in the ⋯ menu.</p>
+            <p class="mt-[3px] text-[11.5px] leading-normal text-ink-2"><kbd>Ctrl/⌘</kbd><kbd>⇧</kbd><kbd>Y</kbd> opens slash slash. See all in the ⋯ menu.</p>
           </div>
           <div class="rounded-xl bg-surface-2 p-[13px]">
             <div class="mb-[7px] text-[16px] leading-none">↔</div>
@@ -199,7 +214,7 @@
         <div class="mx-2 my-1.5 h-px bg-line"></div>
         <div class="px-3 pt-1.5 pb-1 text-[10.5px] font-bold tracking-widest text-ink-3 uppercase">Keyboard shortcuts</div>
         <div class="flex flex-col gap-2 px-3 pt-0.5 pb-1.5 text-[12.5px] text-ink-2">
-          <div class="flex items-center justify-between"><span>Open Fillit</span><span class="inline-flex items-center gap-1"><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>Y</kbd></span></div>
+          <div class="flex items-center justify-between"><span>Open slash slash</span><span class="inline-flex items-center gap-1"><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>Y</kbd></span></div>
           <div class="flex items-center justify-between"><span>New snippet</span><span class="inline-flex items-center gap-1"><kbd>N</kbd></span></div>
           <div class="flex items-center justify-between"><span>Search</span><span class="inline-flex items-center gap-1"><kbd>/</kbd><span class="mx-0.5 text-[11px] text-ink-3">or</span><kbd>Ctrl/⌘</kbd><kbd>K</kbd></span></div>
           <div class="flex items-center justify-between"><span>Save snippet</span><span class="inline-flex items-center gap-1"><kbd>Ctrl/⌘</kbd><kbd>Enter</kbd></span></div>
@@ -212,6 +227,7 @@
 
     <div id="toast" class="fixed bottom-4 left-1/2 z-60 hidden -translate-x-1/2 animate-toast items-center gap-3 rounded-full bg-ink py-2.5 pr-4 pl-4 text-[13px] font-medium text-bg shadow-card" aria-live="polite"></div>
 
+    <script src="format.js"></script>
     <script src="sidepanel.js"></script>
   </body>
 </html>

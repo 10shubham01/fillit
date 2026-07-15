@@ -1,4 +1,4 @@
-/* ===== Fillit — content script =====
+/* ===== slash slash — content script =====
  * Detects "//keyword" typed in any input, textarea, or contenteditable,
  * shows an inline autocomplete, and inserts the matching snippet.
  */
@@ -6,8 +6,8 @@
   "use strict";
 
   const KEY_SNIPPETS = "fillit_snippets";
-  // Auto-resolved utility tokens — NOT fill-in fields.
-  const RESERVED = new Set(["date", "time", "clipboard", "cursor"]);
+  // Shared token engine (format.js, loaded before this script).
+  const F = self.FillitFormat;
 
   let snippets = [];
   let box = null; // dropdown element
@@ -48,8 +48,10 @@
     if (el.isContentEditable) return true;
     if (el.tagName === "TEXTAREA") return true;
     if (el.tagName === "INPUT") {
+      // Only input types that support the selection API — `email`/`number` don't
+      // (their selectionStart is null), so the // trigger can't work there.
       const t = (el.type || "text").toLowerCase();
-      return ["text", "search", "url", "email", "tel", ""].includes(t);
+      return ["text", "search", "url", "tel", ""].includes(t);
     }
     return false;
   }
@@ -91,8 +93,8 @@
       )
       .sort((a, b) => {
         // shortcut-prefix matches first, then the user's manual list order
-        const ap = a.s.shortcut.toLowerCase().startsWith(q) ? 0 : 1;
-        const bp = b.s.shortcut.toLowerCase().startsWith(q) ? 0 : 1;
+        const ap = (a.s.shortcut || "").toLowerCase().startsWith(q) ? 0 : 1;
+        const bp = (b.s.shortcut || "").toLowerCase().startsWith(q) ? 0 : 1;
         if (ap !== bp) return ap - bp;
         return a.i - b.i;
       })
@@ -114,8 +116,7 @@
     let m;
     while ((m = re.exec(text))) {
       out += htmlEsc(text.slice(last, m.index));
-      const key = m[1].trim().toLowerCase();
-      const cls = RESERVED.has(key) ? "fillit-var util" : "fillit-var field";
+      const cls = F.isUtil(m[1]) ? "fillit-var util" : "fillit-var field";
       out += '<span class="' + cls + '">' + htmlEsc(m[0]) + "</span>";
       last = m.index + m[0].length;
     }
@@ -133,27 +134,10 @@
     let m;
     while ((m = re.exec(content))) {
       const name = m[1].trim();
-      if (!name || RESERVED.has(name.toLowerCase())) continue;
+      if (!name || F.isUtil(m[1])) continue;
       if (seen.has(name)) continue;
       seen.add(name);
       out.push(name);
-    }
-    return out;
-  }
-
-  // Resolve the automatic utility tokens (date/time/clipboard).
-  async function resolveUtils(text) {
-    let out = text;
-    out = out.replace(/\{date\}/g, () => new Date().toLocaleDateString());
-    out = out.replace(/\{time\}/g, () => new Date().toLocaleTimeString());
-    if (/\{clipboard\}/.test(out)) {
-      let clip = "";
-      try {
-        clip = await navigator.clipboard.readText();
-      } catch (e) {
-        clip = "";
-      }
-      out = out.replace(/\{clipboard\}/g, clip);
     }
     return out;
   }
@@ -199,7 +183,6 @@
     div.appendChild(span);
 
     const elRect = el.getBoundingClientRect();
-    const spanRect = span.getBoundingClientRect();
     // div is at (0,0); span offset within gives caret offset
     const top =
       elRect.top + (span.offsetTop - el.scrollTop) + parseFloat(style.fontSize) * 1.15;
@@ -414,12 +397,15 @@
   async function finalize(snippet, values, anchor) {
     // 1) Substitute dynamic fields with user-entered values.
     let content = snippet.content.replace(/\{([^}]+)\}/g, (full, raw) => {
+      if (F.isUtil(raw)) return full; // util — resolved below
       const name = raw.trim();
-      if (RESERVED.has(name.toLowerCase())) return full; // handled below
       return name in values ? values[name] : full;
     });
-    // 2) Resolve auto utils (date/time/clipboard).
-    const resolved = await resolveUtils(content);
+    // 2) Resolve auto utils (date/time/datetime/clipboard/url/title/uuid).
+    const resolved = await F.resolveUtils(content, {
+      url: location.href,
+      title: document.title
+    });
 
     // 3) Handle {cursor} for final caret placement, strip any leftover braces.
     const curIdx = resolved.indexOf("{cursor}");

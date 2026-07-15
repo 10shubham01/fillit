@@ -142,15 +142,21 @@
     @apply text-[11px] font-bold tracking-wider text-ink-3 uppercase;
   }
 
-  /* Brand "//" mark — baseline-aligned slashes */
+  /* Brand "//" mark — inline SVG, identical geometry to the extension icon */
   .brand-mark {
-    @apply inline-flex size-7 items-baseline justify-center rounded-[9px] bg-ink pl-0.5 font-mono text-[15px] font-bold tracking-[-2px] text-bg;
-  }
-  .brand-mark .brand-mark-2 {
-    @apply text-accent;
+    @apply block size-7 shrink-0;
   }
   .brand-mark.lg {
-    @apply size-[52px] rounded-2xl text-[28px] tracking-[-4px];
+    @apply size-[52px];
+  }
+  .brand-mark .ss-sq {
+    fill: var(--ink);
+  }
+  .brand-mark .ss-s1 {
+    fill: var(--bg);
+  }
+  .brand-mark .ss-s2 {
+    fill: var(--accent);
   }
 
   /* Folder chips (built in JS) */
@@ -163,7 +169,7 @@
 
   /* Snippet card (built in JS) */
   .snip-card {
-    @apply relative cursor-pointer rounded-xl p-3 pl-3.5 transition-colors duration-150 before:absolute before:top-3.5 before:bottom-3.5 before:left-[5px] before:w-0.5 before:rounded-full before:bg-transparent before:transition-colors before:duration-150 hover:bg-surface-2 hover:before:bg-accent;
+    @apply relative cursor-pointer rounded-xl p-3 pl-3.5 outline-none transition-colors duration-150 before:absolute before:top-3.5 before:bottom-3.5 before:left-[5px] before:w-0.5 before:rounded-full before:bg-transparent before:transition-colors before:duration-150 hover:bg-surface-2 hover:before:bg-accent focus-visible:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset focus-visible:before:bg-accent;
   }
   .snip-card.dragging {
     @apply bg-surface opacity-55 shadow-card;

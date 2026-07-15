@@ -1,8 +1,8 @@
 {
-  "name": "fillit",
-  "version": "1.1.0",
+  "name": "slashslash",
+  "version": "1.2.0",
   "private": true,
-  "description": "Fillit — text snippets anywhere. Chrome side-panel snippet manager with a // trigger.",
+  "description": "slash slash — text snippets anywhere. Chrome side-panel snippet manager with a // trigger.",
   "scripts": {
     "build": "tailwindcss -i sidepanel.src.css -o sidepanel.css --minify",
     "watch": "tailwindcss -i sidepanel.src.css -o sidepanel.css --watch"

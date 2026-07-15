@@ -1,4 +1,4 @@
-/* ===== Fillit — side panel logic ===== */
+/* ===== slash slash — side panel logic ===== */
 
 const KEY_SNIPPETS = "fillit_snippets";
 const KEY_SETTINGS = "fillit_settings";
@@ -34,6 +34,17 @@ async function saveSettings() {
 }
 
 /* ---------- Theme ---------- */
+// Distinct icon per mode so the active theme is obvious at a glance:
+// monitor = follow system, sun = light, moon = dark.
+const THEME_ICONS = {
+  system:
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 20h8M12 17v3"/></svg>',
+  light:
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 11H3a1 1 0 1 0 0 2h1a1 1 0 1 0 0-2zm17 0h-1a1 1 0 1 0 0 2h1a1 1 0 1 0 0-2zM6.3 5A1 1 0 0 0 5 6.3l.7.7A1 1 0 0 0 7 5.7L6.3 5zm12 12a1 1 0 0 0-1.4 1.4l.7.7a1 1 0 0 0 1.4-1.4l-.7-.7zM19 6.3A1 1 0 0 0 17.7 5l-.7.7A1 1 0 0 0 18.3 7l.7-.7zM7 18.3A1 1 0 0 0 5.7 17l-.7.7A1 1 0 0 0 6.3 19l.7-.7zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>',
+  dark:
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8z"/></svg>'
+};
+
 function applyTheme() {
   const t = state.settings.theme;
   const resolved =
@@ -44,11 +55,10 @@ function applyTheme() {
       : t;
   document.documentElement.setAttribute("data-theme", resolved);
   const btn = $("themeBtn");
-  btn.title = `Theme: ${t} (click to change)`;
-  btn.innerHTML =
-    resolved === "dark"
-      ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 11H3a1 1 0 1 0 0 2h1a1 1 0 1 0 0-2zm17 0h-1a1 1 0 1 0 0 2h1a1 1 0 1 0 0-2zM6.3 5A1 1 0 0 0 5 6.3l.7.7A1 1 0 0 0 7 5.7L6.3 5zm12 12a1 1 0 0 0-1.4 1.4l.7.7a1 1 0 0 0 1.4-1.4l-.7-.7zM19 6.3A1 1 0 0 0 17.7 5l-.7.7A1 1 0 0 0 18.3 7l.7-.7zM7 18.3A1 1 0 0 0 5.7 17l-.7.7A1 1 0 0 0 6.3 19l.7-.7zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>'
-      : '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8z"/></svg>';
+  const next = { system: "light", light: "dark", dark: "system" }[t];
+  btn.title = `Theme: ${t} — switch to ${next}`;
+  btn.setAttribute("aria-label", `Theme: ${t}. Switch to ${next}`);
+  btn.innerHTML = THEME_ICONS[t] || THEME_ICONS.system;
 }
 
 /* ---------- Rendering ---------- */
@@ -100,8 +110,6 @@ function esc(str) {
   return d.innerHTML;
 }
 
-const VAR_UTILS = new Set(["date", "time", "clipboard", "cursor"]);
-
 // Escape text and wrap {tokens} in colored spans (utils vs fill-in fields).
 function highlightVars(text) {
   let out = "";
@@ -110,8 +118,7 @@ function highlightVars(text) {
   let m;
   while ((m = re.exec(text))) {
     out += esc(text.slice(last, m.index));
-    const key = m[1].trim().toLowerCase();
-    const cls = VAR_UTILS.has(key) ? "vtok util" : "vtok field";
+    const cls = FillitFormat.isUtil(m[1]) ? "vtok util" : "vtok field";
     out += `<span class="${cls}">${esc(m[0])}</span>`;
     last = m.index + m[0].length;
   }
@@ -151,6 +158,10 @@ function renderList() {
     card.className = "snip-card group";
     card.dataset.id = s.id;
     card.draggable = true;
+    // Reachable and operable by keyboard, not just the mouse.
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `Edit snippet ${s.title || s.shortcut}`);
     card.innerHTML = `
       <div class="mb-[5px] flex items-center gap-2">
         <span class="snip-grip -ml-1.5 grid w-3.5 shrink-0 cursor-grab place-items-center text-ink-3 opacity-0 transition-opacity duration-150 group-hover:opacity-100 active:cursor-grabbing" title="Drag to reorder">
@@ -160,7 +171,7 @@ function renderList() {
         <span class="font-mono text-[11.5px] font-semibold whitespace-nowrap text-accent">//${esc(s.shortcut)}</span>
       </div>
       <div class="line-clamp-2 text-[12.5px] break-words whitespace-pre-wrap text-ink-2">${highlightVars(s.content)}</div>
-      <div class="flex max-h-0 gap-1.5 overflow-hidden opacity-0 transition-all duration-150 group-hover:mt-2.5 group-hover:max-h-10 group-hover:opacity-100">
+      <div class="flex max-h-0 gap-1.5 overflow-hidden opacity-0 transition-all duration-150 group-hover:mt-2.5 group-hover:max-h-10 group-hover:opacity-100 group-focus-within:mt-2.5 group-focus-within:max-h-10 group-focus-within:opacity-100">
         <button class="mini-btn act-copy">
           <svg viewBox="0 0 24 24" width="13" height="13" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
           Copy
@@ -175,6 +186,13 @@ function renderList() {
       if (card.dataset.dragged) return; // ignore the click that ends a drag
       openEditor(s.id);
     };
+    // Enter / Space open the snippet, matching the click affordance.
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openEditor(s.id);
+      }
+    });
     card.querySelector(".act-edit").onclick = (e) => {
       e.stopPropagation();
       openEditor(s.id);
@@ -250,21 +268,25 @@ function applyVisibleOrder(orderedVisibleIds) {
   });
 }
 
-// For copy: resolve date/time/clipboard, strip {cursor} and fill-in braces.
-async function resolveForCopy(content) {
-  let out = content
-    .replace(/\{date\}/g, new Date().toLocaleDateString())
-    .replace(/\{time\}/g, new Date().toLocaleTimeString())
-    .replace(/\{cursor\}/g, "");
-  if (/\{clipboard\}/.test(out)) {
-    let clip = "";
-    try {
-      clip = await navigator.clipboard.readText();
-    } catch (e) {
-      /* permission denied / empty — leave blank */
-    }
-    out = out.replace(/\{clipboard\}/g, clip);
+// { url, title } of the tab the user is looking at, for {url}/{title} on copy.
+async function activeTabContext() {
+  try {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true
+    });
+    return { url: tab?.url || "", title: tab?.title || "" };
+  } catch (e) {
+    return { url: "", title: "" };
   }
+}
+
+// For copy: resolve every util token, strip {cursor}, then reduce any leftover
+// fill-in braces to their bare names (copy can't prompt for values).
+async function resolveForCopy(content) {
+  const ctx = await activeTabContext();
+  let out = await FillitFormat.resolveUtils(content, ctx);
+  out = out.replace(/\{cursor\}/g, "");
   return out.replace(/\{([^}]+)\}/g, "$1");
 }
 
@@ -424,7 +446,7 @@ function exportSnippets() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "fillit-snippets.json";
+  a.download = "slashslash-snippets.json";
   a.click();
   URL.revokeObjectURL(url);
   closeSheet();
