@@ -1,0 +1,271 @@
+/* ===== Fillit — inline autocomplete (injected on every page) =====
+   Deliberately NOT Tailwind: this file ships into every website, so every
+   rule is scoped under #fillit-autocomplete and resets what it needs. */
+#fillit-autocomplete {
+  position: absolute;
+  z-index: 2147483647;
+  display: none;
+  width: 320px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(15 18 25 / 0.16), 0 2px 8px rgb(15 18 25 / 0.08);
+  padding: 6px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter,
+    system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-align: left;
+  color: #18181b;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+#fillit-autocomplete * {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+#fillit-autocomplete .fillit-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+#fillit-autocomplete .fillit-item.active {
+  background: #edecfd;
+}
+
+#fillit-autocomplete .fillit-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+#fillit-autocomplete .fillit-item-title {
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #18181b;
+}
+
+#fillit-autocomplete .fillit-item-shortcut {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b53e6;
+  background: #edecfd;
+  padding: 1px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#fillit-autocomplete .fillit-item.active .fillit-item-shortcut {
+  background: #ffffff;
+}
+
+#fillit-autocomplete .fillit-item-preview {
+  color: #71717a;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#fillit-autocomplete .fillit-var {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.95em;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 0 2px;
+}
+#fillit-autocomplete .fillit-var.field {
+  color: #5b53e6;
+  background: #edecfd;
+}
+#fillit-autocomplete .fillit-var.util {
+  color: #0d9488;
+  background: rgb(13 148 136 / 0.1);
+}
+
+/* Key hints footer */
+#fillit-autocomplete .fillit-hint {
+  display: flex;
+  gap: 10px;
+  padding: 7px 10px 3px;
+  margin-top: 4px;
+  border-top: 1px solid #f0f0f1;
+  color: #a1a1aa;
+  font-size: 11px;
+}
+#fillit-autocomplete .fillit-hint span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#fillit-autocomplete .fillit-hint kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #71717a;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* Fill-in form (dynamic variables) */
+#fillit-autocomplete .fillit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 4px 2px;
+}
+#fillit-autocomplete .fillit-form-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #18181b;
+  padding: 2px 4px 6px;
+  border-bottom: 1px solid #f0f0f1;
+}
+#fillit-autocomplete .fillit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+#fillit-autocomplete .fillit-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #71717a;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+#fillit-autocomplete .fillit-field-input {
+  width: 100%;
+  border: 1px solid #d9d9d5;
+  border-radius: 7px;
+  background: #fafafa;
+  color: #18181b;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 9px;
+  outline: none;
+  box-sizing: border-box;
+}
+#fillit-autocomplete .fillit-field-input:focus {
+  border-color: #5b53e6;
+  background: #fff;
+  box-shadow: 0 0 0 3px #edecfd;
+}
+#fillit-autocomplete .fillit-form-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 2px;
+  padding-bottom: 2px;
+}
+#fillit-autocomplete .fillit-btn {
+  border: none;
+  border-radius: 7px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.4;
+  cursor: pointer;
+  background: #5b53e6;
+  color: #fff;
+}
+#fillit-autocomplete .fillit-btn:hover {
+  filter: brightness(1.07);
+}
+#fillit-autocomplete .fillit-btn.ghost {
+  background: transparent;
+  color: #71717a;
+  border: 1px solid #d9d9d5;
+}
+#fillit-autocomplete .fillit-btn.ghost:hover {
+  color: #18181b;
+  filter: none;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  #fillit-autocomplete {
+    background: #1b1b1e;
+    border-color: #34373d;
+    color: #f0f0ee;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.4);
+  }
+  #fillit-autocomplete .fillit-item.active {
+    background: #2f2f52;
+  }
+  #fillit-autocomplete .fillit-item-title {
+    color: #f0f0ee;
+  }
+  #fillit-autocomplete .fillit-item-shortcut {
+    color: #a9a3ff;
+    background: #2f2f52;
+  }
+  #fillit-autocomplete .fillit-item.active .fillit-item-shortcut {
+    background: #17181b;
+  }
+  #fillit-autocomplete .fillit-item-preview {
+    color: #a2a8b2;
+  }
+  #fillit-autocomplete .fillit-var.field {
+    color: #a9a3ff;
+    background: #2f2f52;
+  }
+  #fillit-autocomplete .fillit-var.util {
+    color: #2dd4bf;
+    background: rgb(45 212 191 / 0.15);
+  }
+  #fillit-autocomplete .fillit-hint {
+    border-top-color: #2a2a2e;
+    color: #6c6c68;
+  }
+  #fillit-autocomplete .fillit-hint kbd {
+    color: #a6a6a2;
+    background: #232327;
+    border-color: #34373d;
+  }
+  #fillit-autocomplete .fillit-form-title {
+    color: #f0f0ee;
+    border-bottom-color: #2a2a2e;
+  }
+  #fillit-autocomplete .fillit-field-label {
+    color: #a2a8b2;
+  }
+  #fillit-autocomplete .fillit-field-input {
+    background: #17181b;
+    border-color: #3a3e46;
+    color: #f0f0ee;
+  }
+  #fillit-autocomplete .fillit-field-input:focus {
+    border-color: #8b84ff;
+    background: #1e2024;
+    box-shadow: 0 0 0 3px #262445;
+  }
+  #fillit-autocomplete .fillit-btn {
+    background: #8b84ff;
+    color: #14141a;
+  }
+  #fillit-autocomplete .fillit-btn.ghost {
+    background: transparent;
+    color: #a2a8b2;
+    border-color: #3a3e46;
+  }
+  #fillit-autocomplete .fillit-btn.ghost:hover {
+    color: #f0f0ee;
+  }
+}

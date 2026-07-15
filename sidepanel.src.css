@@ -1,0 +1,231 @@
+/* =========================================================
+   Fillit — Tailwind v4 source (compiled to sidepanel.css)
+   Build: npm run build
+   ========================================================= */
+@import "tailwindcss";
+
+/* ---------- Theme tokens (flip with data-theme) ---------- */
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --line: #e7e7e4;
+  --line-strong: #d9d9d5;
+  --ink: #18181b;
+  --ink-2: #6f6f6a;
+  --ink-3: #a3a39d;
+  --accent: #5b53e6;
+  --accent-ink: #ffffff;
+  --accent-tint: #edecfd;
+  --util: #0d9488;
+  --util-tint: rgb(13 148 136 / 0.1);
+  --danger: #d84a3f;
+  --danger-tint: #fbeae8;
+  --shadow: 0 1px 1px rgb(20 20 30 / 0.03), 0 6px 24px rgb(20 20 30 / 0.07);
+}
+
+:root[data-theme="dark"] {
+  --bg: #131315;
+  --surface: #1b1b1e;
+  --surface-2: #232327;
+  --line: #2a2a2e;
+  --line-strong: #3a3a40;
+  --ink: #f0f0ee;
+  --ink-2: #a6a6a2;
+  --ink-3: #6c6c68;
+  --accent: #8b84ff;
+  --accent-ink: #14141a;
+  --accent-tint: #262445;
+  --util: #2dd4bf;
+  --util-tint: rgb(45 212 191 / 0.15);
+  --danger: #ff6f63;
+  --danger-tint: #35211f;
+  --shadow: 0 1px 1px rgb(0 0 0 / 0.3), 0 8px 28px rgb(0 0 0 / 0.4);
+}
+
+/* Register tokens so Tailwind emits bg-bg, text-ink, border-line, … */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-tint: var(--accent-tint);
+  --color-util: var(--util);
+  --color-util-tint: var(--util-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --shadow-card: var(--shadow);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+    system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  --animate-view-in: view-in 0.22s ease;
+  --animate-rise: rise 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade: fade 0.16s ease;
+  --animate-toast: toast-rise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply overflow-hidden bg-bg font-sans text-[14px] leading-[1.45] text-ink antialiased;
+  }
+  kbd {
+    @apply rounded-[5px] border border-line bg-surface-2 px-[5px] py-px font-mono text-[11px] leading-4 text-ink-2;
+  }
+}
+
+/* ---------- Reusable components ---------- */
+@layer components {
+  .view {
+    @apply flex h-screen animate-view-in flex-col;
+  }
+
+  .icon-btn {
+    @apply grid size-[34px] cursor-pointer place-items-center rounded-lg border-0 bg-transparent text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink;
+  }
+  .icon-btn svg {
+    fill: currentColor;
+  }
+  .icon-btn.danger:hover {
+    @apply bg-danger-tint text-danger;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-10 min-w-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border-0 bg-accent px-3.5 font-sans text-[13.5px] font-semibold text-accent-ink transition hover:brightness-[1.07] active:translate-y-px;
+  }
+  .btn-primary svg {
+    stroke: currentColor;
+  }
+
+  .btn-ghost {
+    @apply h-10 cursor-pointer rounded-xl border border-line-strong bg-transparent px-[18px] font-sans text-[13.5px] font-semibold text-ink-2 transition hover:border-ink-3 hover:text-ink;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-line-strong bg-surface px-3 py-[10px] font-sans text-[13.5px] text-ink outline-none transition placeholder:text-ink-3 focus:border-accent focus:ring-[3px] focus:ring-accent-tint;
+  }
+  .field-label {
+    @apply text-[11px] font-bold tracking-wider text-ink-3 uppercase;
+  }
+
+  /* Brand "//" mark — baseline-aligned slashes */
+  .brand-mark {
+    @apply inline-flex size-7 items-baseline justify-center rounded-[9px] bg-ink pl-0.5 font-mono text-[15px] font-bold tracking-[-2px] text-bg;
+  }
+  .brand-mark .brand-mark-2 {
+    @apply text-accent;
+  }
+  .brand-mark.lg {
+    @apply size-[52px] rounded-2xl text-[28px] tracking-[-4px];
+  }
+
+  /* Folder chips (built in JS) */
+  .folder-pill {
+    @apply cursor-pointer rounded-full border-0 bg-transparent px-3 py-[5px] font-sans text-[12.5px] font-medium whitespace-nowrap text-ink-2 transition hover:bg-surface-2 hover:text-ink;
+  }
+  .folder-pill.active {
+    @apply bg-ink text-bg;
+  }
+
+  /* Snippet card (built in JS) */
+  .snip-card {
+    @apply relative cursor-pointer rounded-xl p-3 pl-3.5 transition-colors duration-150 before:absolute before:top-3.5 before:bottom-3.5 before:left-[5px] before:w-0.5 before:rounded-full before:bg-transparent before:transition-colors before:duration-150 hover:bg-surface-2 hover:before:bg-accent;
+  }
+  .snip-card.dragging {
+    @apply bg-surface opacity-55 shadow-card;
+    cursor: grabbing;
+  }
+
+  .mini-btn {
+    @apply inline-flex cursor-pointer items-center gap-[5px] rounded-lg border border-line-strong bg-surface px-2.5 py-[5px] font-sans text-[12px] font-medium text-ink-2 transition hover:border-ink-3 hover:text-ink;
+  }
+  .mini-btn svg {
+    stroke: currentColor;
+    fill: none;
+  }
+
+  /* {variable} tokens in previews */
+  .vtok {
+    @apply inline rounded px-[3px] font-mono text-[0.92em] font-semibold whitespace-nowrap;
+  }
+  .vtok.field {
+    @apply bg-accent-tint text-accent;
+  }
+  .vtok.util {
+    @apply bg-util-tint text-util;
+  }
+
+  /* Inline tokens in help copy */
+  .tok {
+    @apply rounded bg-surface-2 px-1 py-px font-mono text-[0.92em] font-semibold text-ink;
+  }
+  .tok.util {
+    @apply bg-util-tint text-util;
+  }
+  .tok.field {
+    @apply bg-accent-tint text-accent;
+  }
+
+  /* Variable helper chips in the editor */
+  .var-chip {
+    @apply cursor-pointer rounded-md border border-line bg-surface-2 px-2 py-[3px] font-mono text-[11.5px] font-semibold text-ink-2 transition hover:border-accent hover:bg-accent-tint hover:text-accent;
+  }
+
+  .sheet-item {
+    @apply flex w-full cursor-pointer items-center gap-3 rounded-lg border-0 bg-transparent p-3 text-left font-sans text-[13.5px] font-medium text-ink transition-colors hover:bg-surface-2;
+  }
+  .sheet-item svg {
+    @apply text-ink-2;
+    fill: none;
+  }
+}
+
+/* ---------- Tiny bits utilities can't express ---------- */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.snippet-list::-webkit-scrollbar {
+  width: 8px;
+}
+.snippet-list::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 8px;
+}
