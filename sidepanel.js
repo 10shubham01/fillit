@@ -26,6 +26,20 @@ async function load() {
   state.snippets = data[KEY_SNIPPETS] || [];
   state.settings = data[KEY_SETTINGS] || { theme: "system" };
 }
+
+/* ---------- Trigger (the "//" prefix — user-configurable) ---------- */
+function trigger() {
+  return state.settings.trigger || "//";
+}
+
+// Reflect the current trigger in every label that shows it.
+function applyTrigger() {
+  const t = trigger();
+  document.querySelectorAll(".trig-label").forEach((el) => (el.textContent = t));
+  document.querySelectorAll(".trigger-chip").forEach((chip) => {
+    chip.classList.toggle("active", chip.dataset.trigger === t);
+  });
+}
 async function saveSnippets() {
   await chrome.storage.local.set({ [KEY_SNIPPETS]: state.snippets });
 }
@@ -142,7 +156,7 @@ function renderList() {
         <div class="text-[15px] font-semibold text-ink">${isEmpty ? "No snippets yet" : "Nothing found"}</div>
         <div class="max-w-[230px] text-[13px] leading-normal">${
           isEmpty
-            ? "Create your first template, then type // in any text field to insert it."
+            ? `Create your first template, then type ${esc(trigger())} in any text field to insert it.`
             : "Try a different search or folder."
         }</div>
         ${isEmpty ? '<button id="emptyNewBtn" class="btn-primary mt-3 h-9">New snippet</button>' : ""}
@@ -168,7 +182,7 @@ function renderList() {
           <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
         </span>
         <span class="flex-1 truncate text-[13.5px] font-semibold tracking-tight">${esc(s.title || "Untitled")}</span>
-        <span class="font-mono text-[11.5px] font-semibold whitespace-nowrap text-accent">//${esc(s.shortcut)}</span>
+        <span class="font-mono text-[11.5px] font-semibold whitespace-nowrap text-accent">${esc(trigger())}${esc(s.shortcut)}</span>
       </div>
       <div class="line-clamp-2 text-[12.5px] break-words whitespace-pre-wrap text-ink-2">${highlightVars(s.content)}</div>
       <div class="flex max-h-0 gap-1.5 overflow-hidden opacity-0 transition-all duration-150 group-hover:mt-2.5 group-hover:max-h-10 group-hover:opacity-100 group-focus-within:mt-2.5 group-focus-within:max-h-10 group-focus-within:opacity-100">
@@ -341,10 +355,11 @@ function refreshFolderOptions() {
     });
 }
 
-// A shortcut can't contain whitespace, "/", or braces — the page-side trigger
-// regex can never match them, so strip them on save.
+// A shortcut can't contain whitespace, braces, or any trigger character
+// (/ ? > ; :) — the page-side trigger regex could never match them, and the
+// user may switch triggers at any time. Strip them on save.
 function normalizeShortcut(raw) {
-  return raw.trim().replace(/^\/+/, "").replace(/[\s/{}]+/g, "");
+  return raw.trim().replace(/[\s/?>;:{}]+/g, "");
 }
 
 async function saveSnippet() {
@@ -371,7 +386,7 @@ async function saveSnippet() {
       s.id !== state.editingId
   );
   if (dup) {
-    toast(`Shortcut //${dup.shortcut} already exists`);
+    toast(`Shortcut ${trigger()}${dup.shortcut} already exists`);
     $("fShortcut").focus();
     return;
   }
@@ -564,6 +579,16 @@ function bind() {
     toast(`Theme: ${state.settings.theme}`);
   };
 
+  document.querySelectorAll(".trigger-chip").forEach((chip) => {
+    chip.onclick = async () => {
+      state.settings.trigger = chip.dataset.trigger;
+      await saveSettings();
+      applyTrigger();
+      renderList();
+      toast(`Trigger: ${chip.dataset.trigger}`);
+    };
+  });
+
   $("menuBtn").onclick = openSheet;
   $("sheet").querySelector(".sheet-backdrop").onclick = closeSheet;
   $("exportBtn").onclick = exportSnippets;
@@ -649,6 +674,11 @@ function bind() {
       state.snippets = changes[KEY_SNIPPETS].newValue || [];
       if (editorView.classList.contains("hidden")) refresh();
     }
+    if (changes[KEY_SETTINGS]) {
+      state.settings = changes[KEY_SETTINGS].newValue || { theme: "system" };
+      applyTheme();
+      applyTrigger();
+    }
   });
 }
 
@@ -656,6 +686,7 @@ function bind() {
 (async function init() {
   await load();
   applyTheme();
+  applyTrigger();
   bind();
   refresh();
 })();

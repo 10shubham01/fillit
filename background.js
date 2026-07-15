@@ -31,22 +31,66 @@ chrome.runtime.onInstalled.addListener(async () => {
         "Hi {name},\n\nThank you so much for {reason}. I really appreciate it!\n\nBest,\n{cursor}",
         "Email"
       ),
-      snip("Today's date", "date", "{date}", "Utility"),
-      snip("Date & time", "now", "{datetime:long}", "Utility"),
-      snip("ISO date", "isodate", "{date:iso}", "Utility"),
-      snip("Random ID", "uuid", "{uuid}", "Utility"),
-      snip("Page link", "link", "{title}\n{url}", "Web"),
+      snip(
+        "Out of office",
+        "ooo",
+        "Hi,\n\nI'm out of office until {return date} with limited access to email. For anything urgent, please reach out to {backup contact}.\n\nThanks!",
+        "Email"
+      ),
+      snip(
+        "My address",
+        "addr",
+        "12 Rosewood Lane, Apt 4B\nBengaluru 560001",
+        "Personal"
+      ),
+      snip(
+        "Intro + links",
+        "intro",
+        "A little about me:\nLinkedIn: https://linkedin.com/in/yourname\nGitHub: https://github.com/yourname\nPortfolio: https://yourname.dev",
+        "Personal"
+      ),
+      snip(
+        "Meeting link",
+        "meet",
+        "Here's my meeting room — join anytime:\nhttps://meet.google.com/xyz-abcd-pqr",
+        "Scheduling"
+      ),
       snip(
         "Share availability",
         "avail",
         "I'm free {cursor}. Would any of those times work for you?",
         "Scheduling"
-      )
+      ),
+      snip("Today's date", "today", "{current date}", "Utility"),
+      snip("Pick a date", "date", "{date}", "Utility"),
+      snip("Date & time", "now", "{datetime:long}", "Utility"),
+      snip("Random ID", "uuid", "{uuid}", "Utility"),
+      snip("Page link", "link", "{title}\n{url}", "Web")
     ];
     await chrome.storage.local.set({
       fillit_snippets: seed,
       fillit_settings: { theme: "system" }
     });
+  }
+
+  // Re-inject the content script into tabs that are already open, so the
+  // trigger works immediately after install/update — no tab reload needed.
+  // (content.js tears down any previous copy of itself via a handshake.)
+  try {
+    const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
+    for (const tab of tabs) {
+      chrome.scripting
+        .insertCSS({ target: { tabId: tab.id, allFrames: true }, files: ["content.css"] })
+        .catch(() => {});
+      chrome.scripting
+        .executeScript({
+          target: { tabId: tab.id, allFrames: true },
+          files: ["format.js", "content.js"]
+        })
+        .catch(() => {});
+    }
+  } catch (e) {
+    console.warn("slash slash: tab re-inject", e);
   }
 });
 

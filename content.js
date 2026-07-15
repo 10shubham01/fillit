@@ -5,9 +5,27 @@
 (function () {
   "use strict";
 
+  // ---- single-instance handshake ----
+  // On install/update the background worker re-injects this script into open
+  // tabs. Ask any previous copy to disconnect its listeners first, and sweep
+  // up a dropdown left behind by copies that predate the handshake.
+  const TEARDOWN_EVT = "fillit:teardown";
+  document.dispatchEvent(new CustomEvent(TEARDOWN_EVT));
+  const staleBox = document.getElementById("fillit-autocomplete");
+  if (staleBox) staleBox.remove();
+
   const KEY_SNIPPETS = "fillit_snippets";
+  const KEY_SETTINGS = "fillit_settings";
   // Shared token engine (format.js, loaded before this script).
   const F = self.FillitFormat;
+
+  let trigger = "//"; // configurable in the side panel (e.g. "??", ">>")
+  const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // "<trigger><query>" just before the caret; query stops at whitespace or a
+  // repeat of the trigger's first char (so "a//b//c" re-arms cleanly).
+  function trigRegex() {
+    return new RegExp(escRe(trigger) + "([^\\s" + escRe(trigger[0]) + "]*)$");
+  }
 
   let snippets = [];
   let box = null; // dropdown element
@@ -28,15 +46,18 @@
     }
   }
 
-  /* ---------- Load + keep snippets in sync ---------- */
+  /* ---------- Load + keep snippets & settings in sync ---------- */
   try {
-    chrome.storage.local.get(KEY_SNIPPETS, (d) => {
+    chrome.storage.local.get([KEY_SNIPPETS, KEY_SETTINGS], (d) => {
       if (chrome.runtime.lastError) return;
       snippets = d[KEY_SNIPPETS] || [];
+      trigger = (d[KEY_SETTINGS] && d[KEY_SETTINGS].trigger) || "//";
     });
     chrome.storage.onChanged.addListener((c, area) => {
       if (area !== "local") return;
       if (c[KEY_SNIPPETS]) snippets = c[KEY_SNIPPETS].newValue || [];
+      if (c[KEY_SETTINGS])
+        trigger = (c[KEY_SETTINGS].newValue && c[KEY_SETTINGS].newValue.trigger) || "//";
     });
   } catch (e) {
     /* context already gone — nothing to sync */
@@ -73,12 +94,12 @@
       if (caret !== el.selectionEnd) return null;
       textBefore = el.value.slice(0, caret);
     }
-    const m = textBefore.match(/\/\/([^\s/]*)$/);
+    const m = textBefore.match(trigRegex());
     if (!m) return null;
     const start = caret - m[0].length;
-    // Don't fire inside URLs: "https://…", "file:///…", "example.com//x".
+    // Don't fire mid-run: "https://…" (for //), ">>>", "???", etc.
     const prev = textBefore[start - 1];
-    if (prev === ":" || prev === "/") return null;
+    if (prev === trigger[0] || (trigger === "//" && prev === ":")) return null;
     return { query: m[1], start };
   }
 
@@ -256,7 +277,7 @@
         "</div>" +
         '<div class="fillit-item-preview"></div>';
       row.querySelector(".fillit-item-title").textContent = s.title || s.shortcut;
-      row.querySelector(".fillit-item-shortcut").textContent = "//" + s.shortcut;
+      row.querySelector(".fillit-item-shortcut").textContent = trigger + s.shortcut;
       row.querySelector(".fillit-item-preview").innerHTML = highlightVarsHTML(preview);
       row.addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -297,7 +318,7 @@
       const node = range.startContainer;
       if (node.nodeType !== Node.TEXT_NODE) return null;
       const caret = range.startOffset;
-      const m = node.textContent.slice(0, caret).match(/\/\/([^\s/]*)$/);
+      const m = node.textContent.slice(0, caret).match(trigRegex());
       const from = m ? caret - m[0].length : caret;
       return { el, editable: true, node, from, to: caret, rect };
     }
@@ -342,9 +363,15 @@
       span.className = "fillit-field-label";
       span.textContent = name;
       const input = document.createElement("input");
-      input.type = "text";
+      // Date-ish fields ({date}, {return date}, …) get a calendar picker.
+      if (F.isDateField(name)) {
+        input.type = "date";
+        input.value = new Date().toISOString().slice(0, 10); // default: today
+      } else {
+        input.type = "text";
+        input.placeholder = "Enter " + name + "…";
+      }
       input.className = "fillit-field-input";
-      input.placeholder = "Enter " + name + "…";
       label.appendChild(span);
       label.appendChild(input);
       form.appendChild(label);
@@ -373,7 +400,13 @@
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const values = {};
-      fields.forEach((n) => (values[n] = inputs[n].value));
+      fields.forEach((n) => {
+        let v = inputs[n].value;
+        // A picked date arrives as YYYY-MM-DD — insert it localized.
+        if (inputs[n].type === "date" && v)
+          v = new Date(v + "T00:00:00").toLocaleDateString();
+        values[n] = v;
+      });
       finalize(snippet, values, anchor);
     });
     form.addEventListener("keydown", (e) => {
@@ -545,34 +578,42 @@
     }
   }
 
-  document.addEventListener("input", onInput, true);
-  document.addEventListener("keydown", onKeydown, true);
-  // Reposition/close the picker on scroll — but never yank away an open form.
-  document.addEventListener(
-    "scroll",
-    () => {
-      if (mode === "list") hideBox();
-    },
-    true
-  );
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (box && box.style.display !== "none" && !box.contains(e.target)) hideBox();
-    },
-    true
-  );
+  // Close the picker on scroll — but never yank away an open form.
+  const onScroll = () => {
+    if (mode === "list") hideBox();
+  };
+  const onClick = (e) => {
+    if (box && box.style.display !== "none" && !box.contains(e.target)) hideBox();
+  };
   // Closing on blur is fine for the list, but the fill-in form steals focus on
   // purpose — don't hide when focus moves into our own box.
+  const onFocusOut = () => {
+    setTimeout(() => {
+      if (mode === "form" && box && box.contains(document.activeElement)) return;
+      if (mode === "form") return; // keep the form open while editing fields
+      hideBox();
+    }, 120);
+  };
+
+  document.addEventListener("input", onInput, true);
+  document.addEventListener("keydown", onKeydown, true);
+  document.addEventListener("scroll", onScroll, true);
+  document.addEventListener("click", onClick, true);
+  document.addEventListener("focusout", onFocusOut, true);
+
+  // A newer copy of this script announces itself with TEARDOWN_EVT —
+  // disconnect everything so only that copy handles the page.
   document.addEventListener(
-    "focusout",
+    TEARDOWN_EVT,
     () => {
-      setTimeout(() => {
-        if (mode === "form" && box && box.contains(document.activeElement)) return;
-        if (mode === "form") return; // keep the form open while editing fields
-        hideBox();
-      }, 120);
+      document.removeEventListener("input", onInput, true);
+      document.removeEventListener("keydown", onKeydown, true);
+      document.removeEventListener("scroll", onScroll, true);
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("focusout", onFocusOut, true);
+      if (box) box.remove();
+      box = null;
     },
-    true
+    { once: true }
   );
 })();

@@ -2,6 +2,11 @@
 
 A minimal Chrome extension that recreates [PriWrite](https://priwrite.com): save reusable text templates and insert them into **any** text field on the web by typing `//`.
 
+![slash slash demo](demo/slashslash-launch.gif)
+
+> 🎬 Full-quality launch video: [`demo/slashslash-launch.mp4`](demo/slashslash-launch.mp4) —
+> regenerate or preview it live by opening `demo/launch.html?play=1` in a browser.
+
 Rebuilt as requested with:
 - **Sidebar (side panel)** as the manager instead of a separate page
 - **Local storage** as the database (`chrome.storage.local`) — no server, no account
@@ -15,26 +20,33 @@ Rebuilt as requested with:
 - **Folders** — organize snippets; filter by folder chips.
 - **Search** — across title, shortcut, and content.
 - **Automatic utility tokens** (resolved for you, no prompt):
-  - `{date}` → current date · `{time}` → current time · `{datetime}` → both
+  - `{current date}` → today · `{time}` / `{current time}` → now ·
+    `{datetime}` / `{current datetime}` → both
   - `{clipboard}` → current clipboard text
   - `{url}` / `{title}` → the current page's URL / title
   - `{uuid}` → a random UUID
   - `{cursor}` → where the caret lands after insertion
+- **Date picker** — `{date}`, or any field with "date" in its name
+  (`{return date}`, `{due date}`), opens a **calendar** in the fill-in form when
+  you insert the snippet, so you can pick any date instead of today's.
 - **Custom date / time formats** — add a format after a colon. Use a friendly
   preset or a `moment`-style pattern:
-  - Presets: `{date:iso}` (`2026-07-15`), `{date:us}`, `{date:eu}`, `{date:long}`,
-    `{date:medium}`, `{time:24}`, `{time:12}`, `{time:24s}`, `{datetime:iso}`,
-    `{datetime:long}`
-  - Patterns: `{date:DD MMM YYYY}`, `{time:h:mm A}`, `{datetime:YYYY-MM-DD HH:mm}`
-    — tokens: `YYYY YY · MMMM MMM MM M · DD D · dddd ddd · HH H hh h · mm m · ss s · A a`;
+  - Presets: `{current date:iso}` (`2026-07-15`), `{current date:us}`,
+    `{current date:eu}`, `{current date:long}`, `{current date:medium}`,
+    `{time:24}`, `{time:12}`, `{time:24s}`, `{datetime:iso}`, `{datetime:long}`
+  - Patterns: `{current date:DD MMM YYYY}`, `{time:h:mm A}`,
+    `{datetime:YYYY-MM-DD HH:mm}` — tokens:
+    `YYYY YY · MMMM MMM MM M · DD D · dddd ddd · HH H hh h · mm m · ss s · A a`;
     wrap literal text in `[brackets]`.
 - **Dynamic fill-in variables** — anything you wrap in `{}` that isn't a utility
   token becomes a variable (e.g. `{firstName}`, `{company}`). It has **no stored
   value**; each time you insert the snippet, slash slash pops a small inline form
-  asking you to fill in every field, then drops the values in. Just type the
-  braces in the snippet content — no setup.
+  asking you to fill in every field (a text box, or a calendar for date fields),
+  then drops the values in. Just type the braces in the snippet content — no setup.
 - **Copy to clipboard** from any card.
 - **Import / Export** all snippets as JSON (backup / move between machines).
+- **Custom trigger** — `//` by default, but pick `??`, `>>`, `;;`, or `::` from the
+  ⋯ menu if `//` clashes with what you type (e.g. code or URLs).
 - **Themes** — light, dark, or follow system.
 - **Manual ordering** — drag snippets by the grip to arrange them; the `//` picker
   follows the same order, with shortcut-prefix matches surfaced first.
@@ -75,14 +87,20 @@ A handful of example snippets are seeded on first install.
 | `sidepanel.html/.css/.js` | The snippet manager UI (the sidebar) |
 | `content.js/.css` | The `//` trigger + inline autocomplete injected into pages |
 | `icons/` | Extension icons |
+| `demo/` | Launch video (`.mp4`/`.gif`) + the animated page that renders it |
 
 ## Troubleshooting
 
-**Not working in Gmail (or any tab that was already open)?** Content scripts
-are only injected into pages loaded *after* the extension is installed or
-reloaded. After loading/reloading slash slash at `chrome://extensions`, **reload the
-Gmail tab** (or open a fresh one) and `//` will work in the compose body. Gmail
-compose is a rich-text field, which slash slash supports.
+**Not working in Gmail (or any tab that was already open)?** On install or
+update, slash slash automatically re-injects itself into every open tab — so the
+trigger should work right away, no tab reload needed. If a tab was open across
+*several* extension reloads (common while developing), an orphaned older copy of
+the script can linger and intercept keystrokes; reloading that tab clears it.
+Gmail compose is a rich-text field, which slash slash fully supports.
+
+**Changed the trigger but pages still react to the old one?** Same cause as
+above — reload that tab once. Newly loaded pages always use the trigger
+currently selected in the ⋯ menu.
 
 ## Notes
 

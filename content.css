@@ -250,6 +250,7 @@
     background: #17181b;
     border-color: #3a3e46;
     color: #f0f0ee;
+    color-scheme: dark; /* native date-picker indicator follows the theme */
   }
   #fillit-autocomplete .fillit-field-input:focus {
     border-color: #8b84ff;

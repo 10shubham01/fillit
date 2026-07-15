@@ -3,19 +3,26 @@
  * the utility tokens resolve and highlight identically everywhere.
  *
  * Auto-resolved utility tokens (no prompt):
- *   {date} {time} {datetime}   — locale default, or {date:iso}, {time:24}, …
+ *   {current date} {current time} {current datetime}
+ *   {time} {datetime}          — locale default, or {time:24}, {datetime:iso}, …
  *   {clipboard}                — current clipboard text
  *   {url} {title}              — current page URL / title
  *   {uuid}                     — a random UUID
  *   {cursor}                   — final caret position (handled by the inserter)
  * Anything else in {braces} is a fill-in field the user is asked for on insert.
+ * NOTE: {date} is deliberately NOT a util — it (and any field whose name
+ * contains the word "date", e.g. {return date}) opens a calendar picker in
+ * the fill-in form instead. Use {current date} for today's date.
  */
 (function (root) {
   "use strict";
 
   // Base names that are auto-resolved rather than prompted for.
+  // ("date" is intentionally absent — {date} is a calendar fill-in field.)
   const UTILS = new Set([
-    "date",
+    "current date",
+    "current time",
+    "current datetime",
     "time",
     "datetime",
     "clipboard",
@@ -131,6 +138,10 @@
 
   const isUtil = (inner) => UTILS.has(parseToken(inner).name);
 
+  // Fill-in fields whose name contains the word "date" ({date}, {return date},
+  // {due date}…) get a calendar picker instead of a text box.
+  const isDateField = (name) => /\bdate\b/i.test(name);
+
   // Replace every utility token in `text`. `ctx` may carry { url, title }.
   // Leaves {cursor}, fill-in fields, and unknown tokens untouched.
   async function resolveUtils(text, ctx) {
@@ -139,10 +150,14 @@
     let out = text.replace(/\{([^}]+)\}/g, (full, inner) => {
       const { name, arg } = parseToken(inner);
       switch (name) {
-        case "date":
+        case "current date":
+          return formatKind("date", now, arg);
+        case "current time":
         case "time":
+          return formatKind("time", now, arg);
+        case "current datetime":
         case "datetime":
-          return formatKind(name, now, arg);
+          return formatKind("datetime", now, arg);
         case "url":
           return ctx.url || "";
         case "title":
@@ -150,7 +165,7 @@
         case "uuid":
           return uuid();
         default:
-          return full; // clipboard (below), cursor, fill-ins, unknown
+          return full; // clipboard (below), cursor, {date} fill-in, unknown
       }
     });
     if (/\{clipboard\}/.test(out)) {
@@ -171,6 +186,7 @@
     formatDate,
     parseToken,
     isUtil,
+    isDateField,
     resolveUtils
   };
 })(typeof self !== "undefined" ? self : this);

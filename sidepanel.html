@@ -47,7 +47,7 @@
 
       <footer class="flex items-center justify-between border-t border-line px-4 py-[11px] text-[11.5px] text-ink-3">
         <span id="countLabel">0 snippets</span>
-        <span>Type <kbd>//</kbd> anywhere to insert</span>
+        <span>Type <kbd class="trig-label">//</kbd> anywhere to insert</span>
       </footer>
     </div>
 
@@ -73,7 +73,7 @@
           <label class="flex flex-1 flex-col gap-[7px]">
             <span class="field-label">Shortcut</span>
             <div class="flex items-center overflow-hidden rounded-xl border border-line-strong bg-surface transition focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent-tint">
-              <span class="py-[10px] pr-[3px] pl-3 font-mono text-[13.5px] font-bold text-accent">//</span>
+              <span class="trig-label py-[10px] pr-[3px] pl-3 font-mono text-[13.5px] font-bold text-accent">//</span>
               <input id="fShortcut" type="text" placeholder="sig" autocomplete="off"
                      class="min-w-0 flex-1 border-0 bg-transparent py-[10px] pr-3 font-mono text-[13.5px] text-ink outline-none placeholder:text-ink-3" />
             </div>
@@ -93,9 +93,10 @@
 
         <div class="flex flex-wrap items-center gap-1.5">
           <span class="text-[11px] font-bold tracking-wider text-ink-3 uppercase">Insert</span>
-          <button type="button" class="var-chip" data-token="{date}">{date}</button>
+          <button type="button" class="var-chip" data-token="{current date}">{current date}</button>
           <button type="button" class="var-chip" data-token="{time}">{time}</button>
           <button type="button" class="var-chip" data-token="{datetime}">{datetime}</button>
+          <button type="button" class="var-chip" data-token="{date}">{date} 📅</button>
           <button type="button" class="var-chip" data-token="{clipboard}">{clipboard}</button>
           <button type="button" class="var-chip" data-token="{url}">{url}</button>
           <button type="button" class="var-chip" data-token="{title}">{title}</button>
@@ -106,12 +107,14 @@
 
         <p class="-mt-1 text-[12px] leading-relaxed text-ink-3">
           Wrap anything in <code class="tok field">{ }</code> to make it a variable.
-          Tokens like <code class="tok util">{date}</code>, <code class="tok util">{time}</code>,
+          <code class="tok util">{current date}</code>, <code class="tok util">{time}</code>,
           <code class="tok util">{clipboard}</code>, <code class="tok util">{url}</code> and
-          <code class="tok util">{cursor}</code> fill automatically; everything else asks you
-          on insert. Add a format after a colon —
-          <code class="tok util">{date:iso}</code>, <code class="tok util">{time:24}</code>,
-          <code class="tok util">{date:DD MMM YYYY}</code>.
+          <code class="tok util">{cursor}</code> fill automatically — add a format after a
+          colon, like <code class="tok util">{current date:iso}</code> or
+          <code class="tok util">{time:24}</code>.
+          <code class="tok field">{date}</code> — or any field with “date” in its name,
+          like <code class="tok field">{return date}</code> — opens a calendar when you
+          insert. Everything else asks you with a text box.
         </p>
       </div>
 
@@ -164,7 +167,7 @@
             <span class="grid size-6 shrink-0 place-items-center rounded-full bg-accent-tint font-mono text-[12px] font-bold text-accent">3</span>
             <div>
               <strong class="text-[13.5px] font-semibold">Use variables</strong>
-              <p class="mt-[3px] text-[12.5px] leading-relaxed text-ink-2">Wrap words in <span class="tok">{ }</span>. <span class="tok util">{date}</span>, <span class="tok util">{time}</span>, <span class="tok util">{datetime}</span>, <span class="tok util">{clipboard}</span>, <span class="tok util">{url}</span>, <span class="tok util">{title}</span>, <span class="tok util">{uuid}</span> and <span class="tok util">{cursor}</span> fill in for you — add a format like <span class="tok util">{date:iso}</span> or <span class="tok util">{time:24}</span>. Anything else like <span class="tok field">{name}</span> asks you on insert.</p>
+              <p class="mt-[3px] text-[12.5px] leading-relaxed text-ink-2">Wrap words in <span class="tok">{ }</span>. <span class="tok util">{current date}</span>, <span class="tok util">{time}</span>, <span class="tok util">{datetime}</span>, <span class="tok util">{clipboard}</span>, <span class="tok util">{url}</span>, <span class="tok util">{title}</span>, <span class="tok util">{uuid}</span> and <span class="tok util">{cursor}</span> fill in for you — add a format like <span class="tok util">{current date:iso}</span> or <span class="tok util">{time:24}</span>. <span class="tok field">{date}</span> (or <span class="tok field">{return date}</span>) opens a calendar on insert; anything else like <span class="tok field">{name}</span> asks with a text box.</p>
             </div>
           </li>
         </ol>
@@ -212,6 +215,17 @@
         <input id="importFile" type="file" accept="application/json,.json" hidden />
 
         <div class="mx-2 my-1.5 h-px bg-line"></div>
+        <div class="px-3 pt-1.5 pb-1 text-[10.5px] font-bold tracking-widest text-ink-3 uppercase">Trigger</div>
+        <p class="px-3 pb-2 text-[12px] leading-relaxed text-ink-2">What you type before a shortcut to open the picker.</p>
+        <div id="triggerChoices" class="flex gap-1.5 px-3 pb-2">
+          <button type="button" class="trigger-chip" data-trigger="//">//</button>
+          <button type="button" class="trigger-chip" data-trigger="??">??</button>
+          <button type="button" class="trigger-chip" data-trigger=">>">&gt;&gt;</button>
+          <button type="button" class="trigger-chip" data-trigger=";;">;;</button>
+          <button type="button" class="trigger-chip" data-trigger="::">::</button>
+        </div>
+
+        <div class="mx-2 my-1.5 h-px bg-line"></div>
         <div class="px-3 pt-1.5 pb-1 text-[10.5px] font-bold tracking-widest text-ink-3 uppercase">Keyboard shortcuts</div>
         <div class="flex flex-col gap-2 px-3 pt-0.5 pb-1.5 text-[12.5px] text-ink-2">
           <div class="flex items-center justify-between"><span>Open slash slash</span><span class="inline-flex items-center gap-1"><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>Y</kbd></span></div>
@@ -219,7 +233,7 @@
           <div class="flex items-center justify-between"><span>Search</span><span class="inline-flex items-center gap-1"><kbd>/</kbd><span class="mx-0.5 text-[11px] text-ink-3">or</span><kbd>Ctrl/⌘</kbd><kbd>K</kbd></span></div>
           <div class="flex items-center justify-between"><span>Save snippet</span><span class="inline-flex items-center gap-1"><kbd>Ctrl/⌘</kbd><kbd>Enter</kbd></span></div>
           <div class="flex items-center justify-between"><span>Close / clear</span><span class="inline-flex items-center gap-1"><kbd>Esc</kbd></span></div>
-          <div class="flex items-center justify-between"><span>Insert on page</span><span class="inline-flex items-center gap-1"><kbd>//</kbd><span class="mx-0.5 text-[11px] text-ink-3">then</span><kbd>Tab</kbd></span></div>
+          <div class="flex items-center justify-between"><span>Insert on page</span><span class="inline-flex items-center gap-1"><kbd class="trig-label">//</kbd><span class="mx-0.5 text-[11px] text-ink-3">then</span><kbd>Tab</kbd></span></div>
         </div>
         <button id="editShortcutsBtn" class="sheet-item justify-center text-[12.5px] !text-ink-2">Change browser shortcuts…</button>
       </div>
