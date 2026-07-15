@@ -1,2 +1,6 @@
 node_modules/
 asterix_story_log.json
+dist/
+demo/frames/
+demo/music.wav
+.claude/

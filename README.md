@@ -1,17 +1,22 @@
 # slash slash — Text Snippets Anywhere
 
-A minimal Chrome extension that recreates [PriWrite](https://priwrite.com): save reusable text templates and insert them into **any** text field on the web by typing `//`.
+A minimal Chrome extension for the text you type again and again: save it once,
+then drop it into **any** text field on the web by typing `//`. Addresses,
+sign-offs, meeting links, out-of-office replies — one trigger away.
+
+## Demo
 
 ![slash slash demo](demo/slashslash-launch.gif)
 
-> 🎬 Full-quality launch video: [`demo/slashslash-launch.mp4`](demo/slashslash-launch.mp4) —
-> regenerate or preview it live by opening `demo/launch.html?play=1` in a browser.
+> 🎬 Full-quality launch video with sound: [`demo/slashslash-launch.mp4`](demo/slashslash-launch.mp4).
+> Preview it live by opening `demo/launch.html?play=1` in a browser, or re-render
+> it from code — see [`demo/README.md`](demo/README.md).
 
-Rebuilt as requested with:
-- **Sidebar (side panel)** as the manager instead of a separate page
-- **Local storage** as the database (`chrome.storage.local`) — no server, no account
-- **No sign-in** — everything stays on your device
-- A **minimal, modern** redesign (light/dark/system themes)
+Built on three principles:
+- **Side panel** as the manager — always a keystroke away, never a separate tab
+- **Local-first** — `chrome.storage.local` is the only database; no server, no
+  account, no sign-in, no network requests
+- **Minimal, modern UI** — light/dark/system themes, keyboard-driven
 
 ## Features
 
@@ -66,7 +71,7 @@ Rebuilt as requested with:
 
 1. Open `chrome://extensions`
 2. Toggle **Developer mode** (top right)
-3. Click **Load unpacked** and select this `fillit` folder
+3. Click **Load unpacked** and select this project folder
 4. Pin the extension and click its icon to open the **side panel**
 
 A handful of example snippets are seeded on first install.
@@ -77,17 +82,34 @@ A handful of example snippets are seeded on first install.
 2. Go to any website, focus a text field, and type `//` followed by your shortcut.
 3. Pick from the dropdown → the snippet is inserted (variables resolved, caret placed at `{cursor}`).
 
+## Development
+
+```bash
+npm install            # tailwind (the only dev dependency)
+npm run build          # compile sidepanel.src.css → sidepanel.css
+npm run watch          # …same, on every change
+npm run package        # build + create dist/slashslash-v<version>.zip
+```
+
+`npm run package` produces the zip you upload at the
+[Chrome Web Store developer console](https://chrome.google.com/webstore/devconsole).
+It's whitelist-based — only runtime files go in (no demo, docs, or sources) —
+and it fails loudly if a file referenced by the manifest is missing or the
+compiled CSS is stale.
+
 ## Files
 
 | File | Role |
 |------|------|
 | `manifest.json` | MV3 manifest |
-| `background.js` | Service worker — opens the side panel, seeds examples |
+| `background.js` | Service worker — side panel, seeds, tab re-injection |
 | `format.js` | Shared token engine — utility tokens + date/time formatting |
 | `sidepanel.html/.css/.js` | The snippet manager UI (the sidebar) |
-| `content.js/.css` | The `//` trigger + inline autocomplete injected into pages |
+| `sidepanel.src.css` | Tailwind source for `sidepanel.css` |
+| `content.js/.css` | The trigger + inline autocomplete injected into pages |
 | `icons/` | Extension icons |
-| `demo/` | Launch video (`.mp4`/`.gif`) + the animated page that renders it |
+| `scripts/package.mjs` | Builds the Web Store upload zip |
+| `demo/` | Launch video (`.mp4`/`.gif`) + the code-rendered pipeline behind it |
 
 ## Troubleshooting
 

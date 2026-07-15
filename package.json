@@ -5,7 +5,8 @@
   "description": "slash slash — text snippets anywhere. Chrome side-panel snippet manager with a // trigger.",
   "scripts": {
     "build": "tailwindcss -i sidepanel.src.css -o sidepanel.css --minify",
-    "watch": "tailwindcss -i sidepanel.src.css -o sidepanel.css --watch"
+    "watch": "tailwindcss -i sidepanel.src.css -o sidepanel.css --watch",
+    "package": "npm run build && node scripts/package.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",

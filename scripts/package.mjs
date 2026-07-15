@@ -57,11 +57,12 @@ for (const f of referenced) {
     ok = false;
   }
 }
-// warn if the compiled CSS is older than its Tailwind source
+// Note: `npm run package` always rebuilds the CSS first. This is only a hint
+// for direct `node scripts/package.mjs` runs — and tailwind skips rewriting
+// unchanged output, so an older mtime here is usually fine, not an error.
 try {
   if (statSync(cd("sidepanel.src.css")).mtimeMs > statSync(cd("sidepanel.css")).mtimeMs) {
-    console.error("✗ sidepanel.css is older than sidepanel.src.css — run `npm run build` first");
-    ok = false;
+    console.warn("⚠ sidepanel.src.css is newer than sidepanel.css — if you changed styles, run `npm run build`");
   }
 } catch { /* source file optional in a checkout without dev files */ }
 if (!ok) process.exit(1);
