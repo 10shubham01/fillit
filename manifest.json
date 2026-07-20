@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "slash slash — Text Snippets Anywhere",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Save text templates and insert them anywhere on the web by typing //. Minimal, fast, private — everything stays on your device.",
   "permissions": ["storage", "sidePanel", "clipboardRead", "scripting"],
   "host_permissions": ["<all_urls>"],

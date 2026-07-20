@@ -31,6 +31,23 @@
   margin: 0;
 }
 
+/* Scrollbar — thin, rounded, brand-tinted; inset so it clears the 12px
+   corner radius. (Webkit pseudos: the extension is Chrome-only.) */
+#fillit-autocomplete::-webkit-scrollbar {
+  width: 10px;
+}
+#fillit-autocomplete::-webkit-scrollbar-track {
+  background: transparent;
+}
+#fillit-autocomplete::-webkit-scrollbar-thumb {
+  background: #d6d3f8;
+  border-radius: 8px;
+  border: 3px solid #ffffff; /* matches the box background → thumb looks 4px wide */
+}
+#fillit-autocomplete::-webkit-scrollbar-thumb:hover {
+  background: #b7b1f2;
+}
+
 #fillit-autocomplete .fillit-item {
   padding: 8px 10px;
   border-radius: 8px;
@@ -205,6 +222,13 @@
     border-color: #34373d;
     color: #f0f0ee;
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.4);
+  }
+  #fillit-autocomplete::-webkit-scrollbar-thumb {
+    background: #46466e;
+    border-color: #1b1b1e; /* matches the dark box background */
+  }
+  #fillit-autocomplete::-webkit-scrollbar-thumb:hover {
+    background: #5a5a8c;
   }
   #fillit-autocomplete .fillit-item.active {
     background: #2f2f52;

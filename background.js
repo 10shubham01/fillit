@@ -18,24 +18,11 @@ chrome.runtime.onInstalled.addListener(async () => {
       uses: 0
     });
     const seed = [
-      snip("Email sign-off", "sig", "Best regards,\n{cursor}", "Email"),
       snip(
-        "Meeting follow-up",
-        "followup",
-        "Hi {name},\n\nThanks for the great conversation today. As discussed, here are the next steps:\n\n- {cursor}\n\nLooking forward to it!",
-        "Email"
-      ),
-      snip(
-        "Thank-you note",
-        "thanks",
-        "Hi {name},\n\nThank you so much for {reason}. I really appreciate it!\n\nBest,\n{cursor}",
-        "Email"
-      ),
-      snip(
-        "Out of office",
-        "ooo",
-        "Hi,\n\nI'm out of office until {return date} with limited access to email. For anything urgent, please reach out to {backup contact}.\n\nThanks!",
-        "Email"
+        "Meeting link",
+        "meet",
+        "Here's my meeting room — join anytime:\nhttps://meet.google.com/xyz-abcd-pqr",
+        "Scheduling"
       ),
       snip(
         "My address",
@@ -44,28 +31,11 @@ chrome.runtime.onInstalled.addListener(async () => {
         "Personal"
       ),
       snip(
-        "Intro + links",
-        "intro",
-        "A little about me:\nLinkedIn: https://linkedin.com/in/yourname\nGitHub: https://github.com/yourname\nPortfolio: https://yourname.dev",
-        "Personal"
-      ),
-      snip(
-        "Meeting link",
-        "meet",
-        "Here's my meeting room — join anytime:\nhttps://meet.google.com/xyz-abcd-pqr",
-        "Scheduling"
-      ),
-      snip(
-        "Share availability",
-        "avail",
-        "I'm free {cursor}. Would any of those times work for you?",
-        "Scheduling"
-      ),
-      snip("Today's date", "today", "{current date}", "Utility"),
-      snip("Pick a date", "date", "{date}", "Utility"),
-      snip("Date & time", "now", "{datetime:long}", "Utility"),
-      snip("Random ID", "uuid", "{uuid}", "Utility"),
-      snip("Page link", "link", "{title}\n{url}", "Web")
+        "Meeting follow-up",
+        "followup",
+        "Hi {name},\n\nThanks for the great conversation today. As discussed, here are the next steps:\n\n- {cursor}\n\nLooking forward to it!",
+        "Email"
+      )
     ];
     await chrome.storage.local.set({
       fillit_snippets: seed,

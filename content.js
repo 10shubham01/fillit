@@ -578,8 +578,11 @@
     }
   }
 
-  // Close the picker on scroll — but never yank away an open form.
-  const onScroll = () => {
+  // Close the picker when the page scrolls — but never yank away an open
+  // form, and ignore scrolls inside the picker itself (arrowing to an
+  // off-screen item scrolls the list via scrollIntoView).
+  const onScroll = (e) => {
+    if (box && box.contains(e.target)) return;
     if (mode === "list") hideBox();
   };
   const onClick = (e) => {
